@@ -1,0 +1,4 @@
+useDynLib(fastSOM)
+export(soi,sot,soi_from_sot,
+		soi_avg_est,soi_avg_exact,
+		sot_avg_est,sot_avg_exact)
