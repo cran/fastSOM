@@ -33,7 +33,7 @@ soi_list <- function(Sigma,A,N=dim(Sigma[[1]])[1],H=dim(A[[1]])[3],perm=1:N,ncor
 	len <- length(Sigma)
 	res <- vector("list",len)
 	
-	if ( (ncores!=1) && (!require("parallel")) )
+	if ( (ncores!=1) && (!requireNamespace("parallel")) )
 	{
 		print("Parallelization not possible because package 'parallel' is not installed. Using single core version instead.")
 		ncores <- 1
@@ -74,4 +74,17 @@ soi_from_sot <- function(input_table)
 	# input_table: either a spillover table or a list thereof
 	if (is.list(input_table)) lapply(input_table,function(input) 100-mean(diagFAST(input))) 
 	else 100-mean(diagFAST(input_table)) 
+}
+
+################################################################################
+# calculate the positive/negative spillover index from a positive/negative spillover table, automatic detection whether 'list' (rolling windows) or 'single' use
+soi_signed_from_sot_signed <- function(input_table)
+{
+	# input_table: either a spillover table or a list thereof
+	if (is.list(input_table)) lapply(input_table,soi_signed_from_sot_signed) 
+	else 
+	{
+		diag(input_table) <- 0
+		sum(input_table)/dim(input_table)[1]
+	}
 }

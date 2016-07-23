@@ -1,3 +1,11 @@
+importFrom(parallel,clusterApply)
+importFrom(parallel,clusterEvalQ)
+importFrom(parallel,clusterExport)
+importFrom(parallel,detectCores)
+importFrom(parallel,makeCluster)
+importFrom(parallel,splitIndices)
+importFrom(parallel,stopCluster)
+
 useDynLib(fastSOM)
 export(soi,sot,soi_from_sot,
 		soi_avg_est,soi_avg_exact,

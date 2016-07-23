@@ -43,12 +43,12 @@
   The 'list' version returns a list consisting of three vectors (the average, minimal, and maximal spillover index values) and two matrices (the columns of which are the permutations generating the minima and maxima). 
 }
 \references{
-  [1] Diebold, F. X. and Yilmaz, K. (2009):  Measuring financial asset return and volatitliy spillovers, 
-                                             with application to global equity markets, 
+  [1] Diebold, F. X. and Yilmaz, K. (2009):  \href{http://onlinelibrary.wiley.com/doi/10.1111/j.1468-0297.2008.02208.x/pdf}{Measuring financial asset return and volatitliy spillovers, 
+                                             with application to global equity markets}, 
                                              Economic Journal 199(534): 158-171.
 
-  [2] Kloessner, S. and Wagner, S. (2012):  \href{http://www.oekonometrie.uni-saarland.de/papers/SKSW.pdf}{Robustness and computation of spillover measures 
-                                            for financial asset returns and volatilities, Working Paper.} 
+  [2] Kloessner, S. and Wagner, S. (2012):  \href{http://onlinelibrary.wiley.com/doi/10.1002/jae.2366/pdf}{Exploring All VAR Orderings for Calculating Spillovers? Yes, We Can! - 
+											A Note on Diebold and Yilmaz (2009)}, Journal of Applied Econometrics 29(1): 172-179
 }
 \author{
   Stefan Kloessner (\email{S.Kloessner@mx.uni-saarland.de}), \cr
@@ -63,7 +63,7 @@ Sigma <- crossprod(matrix(rnorm(N*N),nrow=N))
 H <- 10 
 A <- array(rnorm(N*N*H),dim=c(N,N,H)) 
 # calculate estimates of the average, minimal, 
-# and maximal spillover index and gives the corresponding ordering
+# and maximal spillover index and determine the corresponding ordering
 # of the model variables
 soi_avg_est(Sigma, A) 
 }

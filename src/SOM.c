@@ -410,19 +410,33 @@ SEXP SOT_avg(SEXP S, SEXP A, SEXP N, SEXP H, SEXP NcK, SEXP Cumpos, SEXP Gensets
 	const double * const a = REAL(A);
 	const double * const s = REAL(S);
 
-	SEXP Average, Minimum, Maximum, Res, Names;
-	PROTECT (Res                  = allocVector(VECSXP, 3));
-	PROTECT (Names                = allocVector(STRSXP, 3));
+	SEXP Average, Minimum, Maximum, Average_p, Minimum_p, Maximum_p, Average_n, Minimum_n, Maximum_n,Res, Names;
+	PROTECT (Res                  = allocVector(VECSXP, 9));
+	PROTECT (Names                = allocVector(STRSXP, 9));
 	PROTECT (Average              = allocVector(REALSXP, n*n));
 	PROTECT (Minimum              = allocVector(REALSXP, n*n));
 	PROTECT (Maximum              = allocVector(REALSXP, n*n));
+	PROTECT (Average_p            = allocVector(REALSXP, n*n));
+	PROTECT (Minimum_p            = allocVector(REALSXP, n*n));
+	PROTECT (Maximum_p            = allocVector(REALSXP, n*n));
+	PROTECT (Average_n            = allocVector(REALSXP, n*n));
+	PROTECT (Minimum_n            = allocVector(REALSXP, n*n));
+	PROTECT (Maximum_n            = allocVector(REALSXP, n*n));
 	double * const average        = REAL(Average);
 	double * const minimum        = REAL(Minimum);
 	double * const maximum        = REAL(Maximum);
+	double * const average_p      = REAL(Average_p);
+	double * const minimum_p      = REAL(Minimum_p);
+	double * const maximum_p      = REAL(Maximum_p);
+	double * const average_n      = REAL(Average_n);
+	double * const minimum_n      = REAL(Minimum_n);
+	double * const maximum_n      = REAL(Maximum_n);
 	
 	double tmp;
 	double * const tmpL = (double *) malloc(n*n*sizeof(double));
 	double * const current_column = (double *) malloc(n*sizeof(double));
+	double * const current_column_p = (double *) malloc(n*sizeof(double));
+	double * const current_column_n = (double *) malloc(n*sizeof(double));
 	int * const current_perm = (int *) malloc(n*sizeof(int));
 	double * const weights = (double *) malloc(n*sizeof(double));
 
@@ -438,6 +452,12 @@ SEXP SOT_avg(SEXP S, SEXP A, SEXP N, SEXP H, SEXP NcK, SEXP Cumpos, SEXP Gensets
 		average[j]=0.0;
 		minimum[j]=1.0;
 		maximum[j]=0.0;
+		average_p[j]=0.0;
+		minimum_p[j]=1.0;
+		maximum_p[j]=0.0;
+		average_n[j]=0.0;
+		minimum_n[j]=1.0;
+		maximum_n[j]=0.0;
 	}	
 	
 	for (i=0;i<n;i++) /* positions */
@@ -451,7 +471,12 @@ SEXP SOT_avg(SEXP S, SEXP A, SEXP N, SEXP H, SEXP NcK, SEXP Cumpos, SEXP Gensets
 				current_perm[i]=j; // j's position is i
 				for (l=i+1;l<n;l++) current_perm[l]=nminusOne[j+gensets[cur_subset+len*(l-1)]*n]; // remaining elements
 				chol_part_C(s,n,i+1,current_perm,tmpL); // calculate Cholesky decomposition of L[current_perm,current_perm] up to column i+1
-				for (l=0;l<n;l++) current_column[l]=0.0; // current_column <- 0
+				for (l=0;l<n;l++) 
+				{
+					current_column[l]=0.0; // current_column <- 0
+					current_column_p[l]=0.0; // current_column_p <- 0
+					current_column_n[l]=0.0; // current_column <- 0
+				}
 				for (hh=0;hh<h;hh++)
 				{
 					for (l=0;l<n;l++) //calculate l'th entry of A[,,h] %*% tmpL[,i] (tmpL[firstpart,i] is zero!)
@@ -459,6 +484,8 @@ SEXP SOT_avg(SEXP S, SEXP A, SEXP N, SEXP H, SEXP NcK, SEXP Cumpos, SEXP Gensets
 						tmp = a[current_perm[l]+j*n+hh*n*n]*tmpL[j+j*n]; // a[perm[l],j,hh]*tmpL[j,j]
 						for (m=i+1;m<n;m++) tmp += (a[current_perm[l]+current_perm[m]*n+hh*n*n]*tmpL[current_perm[m]+j*n]); // a[perm[l],perm[m],hh]*tmpL[perm[m],j]
 						current_column[current_perm[l]] += (tmp*tmp); // column of spillover table for variable j, when variable j is at position i, and variables ... precede it
+						if (tmp>0) current_column_p[current_perm[l]] += (tmp*tmp); // column of positive contributions to spillover table for variable j, when variable j is at position i, and variables ... precede it
+						if (tmp<0) current_column_n[current_perm[l]] += (tmp*tmp); // column of negative contributions to spillover table for variable j, when variable j is at position i, and variables ... precede it
 					}
 				}
 				for (l=0;l<n;l++)
@@ -466,6 +493,12 @@ SEXP SOT_avg(SEXP S, SEXP A, SEXP N, SEXP H, SEXP NcK, SEXP Cumpos, SEXP Gensets
 					average[l+j*n] += (weights[i]*current_column[l]);
 					minimum[l+j*n] = fmin2(minimum[l+j*n],current_column[l]);
 					maximum[l+j*n] = fmax2(maximum[l+j*n],current_column[l]);
+					average_p[l+j*n] += (weights[i]*current_column_p[l]);
+					minimum_p[l+j*n] = fmin2(minimum_p[l+j*n],current_column_p[l]);
+					maximum_p[l+j*n] = fmax2(maximum_p[l+j*n],current_column_p[l]);
+					average_n[l+j*n] += (weights[i]*current_column_n[l]);
+					minimum_n[l+j*n] = fmin2(minimum_n[l+j*n],current_column_n[l]);
+					maximum_n[l+j*n] = fmax2(maximum_n[l+j*n],current_column_n[l]);
 				}
 			}
 		}
@@ -473,17 +506,31 @@ SEXP SOT_avg(SEXP S, SEXP A, SEXP N, SEXP H, SEXP NcK, SEXP Cumpos, SEXP Gensets
 
 	free(tmpL);
 	free(current_column);
+	free(current_column_p);
+	free(current_column_n);
 	free(current_perm);
 	free(weights);
 	
 	SET_VECTOR_ELT(Res, 0, Average);
 	SET_VECTOR_ELT(Res, 1, Minimum);
 	SET_VECTOR_ELT(Res, 2, Maximum);
+	SET_VECTOR_ELT(Res, 3, Average_p);
+	SET_VECTOR_ELT(Res, 4, Minimum_p);
+	SET_VECTOR_ELT(Res, 5, Maximum_p);
+	SET_VECTOR_ELT(Res, 6, Average_n);
+	SET_VECTOR_ELT(Res, 7, Minimum_n);
+	SET_VECTOR_ELT(Res, 8, Maximum_n);
 	SET_STRING_ELT(Names, 0, mkChar("Average"));
 	SET_STRING_ELT(Names, 1, mkChar("Minimum"));
 	SET_STRING_ELT(Names, 2, mkChar("Maximum"));
+	SET_STRING_ELT(Names, 3, mkChar("Average_p"));
+	SET_STRING_ELT(Names, 4, mkChar("Minimum_p"));
+	SET_STRING_ELT(Names, 5, mkChar("Maximum_p"));
+	SET_STRING_ELT(Names, 6, mkChar("Average_n"));
+	SET_STRING_ELT(Names, 7, mkChar("Minimum_n"));
+	SET_STRING_ELT(Names, 8, mkChar("Maximum_n"));
 	setAttrib(Res, R_NamesSymbol, Names);
-	UNPROTECT(5);
+	UNPROTECT(11);
 	return(Res);
 }
 

@@ -28,7 +28,7 @@ sot_avg_exact_single <- function(Sigma,A,N=dim(Sigma)[1],H=dim(A)[3],helpers=hel
 	
 	scaling_factor <- 1/sqrt(.Call("fev",Sigma,A,N,H,PACKAGE="fastSOM"))
 	res <- .Call("SOT_avg",.Call("scaleSigma",Sigma,scaling_factor,N,PACKAGE="fastSOM"),.Call("scaleA",A,scaling_factor,N,H,PACKAGE="fastSOM"),N,H,helpers$NcK,helpers$cumpos,helpers$gensets-1L,helpers$NminusOne,PACKAGE="fastSOM")
-	for (i in 1:3)
+	for (i in 1:9)
 	{
 		dim(res[[i]]) <- c(N,N)
 		dimnames(res[[i]]) <- dimnames(Sigma)
@@ -44,7 +44,7 @@ sot_avg_exact_list <- function(Sigma,A,N=dim(Sigma[[1]])[1],H=dim(A[[1]])[3],hel
 	len <- length(Sigma)
 	res <- vector("list",len)
 	
-	if ( (ncores!=1) && (!require("parallel")) )
+	if ( (ncores!=1) && (!requireNamespace("parallel")) )
 	{
 		print("Parallelization not possible because package 'parallel' is not installed. Using single core version instead.")
 		ncores <- 1

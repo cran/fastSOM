@@ -264,7 +264,7 @@ divide_et_impera <- function(Sigma,A,N,N1,N2,H,B,useB=FALSE,perms,combs,Nmin=6,n
 	SecondN2 <- (N1+1):N
 	
 	parallel <- (firstlevel) && (ncores!=1)
-	if ( (parallel) && (!require("parallel")) )
+	if ( (parallel) && (!requireNamespace("parallel")) )
 	{
 		print("Parallelization not possible because package 'parallel' is not installed. Using single core version instead.")
 		ncores <- 1

@@ -37,7 +37,7 @@ sot_list <- function(Sigma,A,N=dim(Sigma[[1]])[1],H=dim(A[[1]])[3],perm=1:N,ncor
 	len <- length(Sigma)
 	res <- vector("list",len)
 	
-	if ( (ncores!=1) && (!require("parallel")) )
+	if ( (ncores!=1) && (!requireNamespace("parallel")) )
 	{
 		print("Parallelization not possible because package 'parallel' is not installed. Using single core version instead.")
 		ncores <- 1

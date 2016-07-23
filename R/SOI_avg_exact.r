@@ -55,7 +55,7 @@ soi_avg_exact_list <- function(Sigma,A,N=dim(Sigma[[1]])[1],H=dim(A[[1]])[3],nco
 	len <- length(Sigma)
 	res <- vector("list",len)
 	
-	if ( (ncores!=1) && (!require("parallel")) )
+	if ( (ncores!=1) && (!requireNamespace("parallel")) )
 	{
 		print("Parallelization not possible because package 'parallel' is not installed. Using single core version instead.")
 		ncores <- 1
@@ -77,7 +77,7 @@ soi_avg_exact_list <- function(Sigma,A,N=dim(Sigma[[1]])[1],H=dim(A[[1]])[3],nco
 		splitted <- splitIndices(len,ncores) # determine how to distribute the workload 
 		cl <- makeCluster(ncores) # create cluster
 		clusterEvalQ(cl, library(fastSOM)) # load package fastSOM on every core
-		clusterExport(cl,c("Sigma","A","N","H","perms"),envir=environment()) # send variables to every core
+		clusterExport(cl,c("Sigma","A","N","H"),envir=environment()) # send variables to every core
 		tmp <- clusterApply(cl,1:ncores,function(ind) soi_avg_exact_list(Sigma[splitted[[ind]]],A[splitted[[ind]]],N,H,ncores=1,...)) # do parallel jobs
 		stopCluster(cl) # close Cluster
 		

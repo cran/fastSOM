@@ -45,7 +45,7 @@ sot_avg_est_single <- function(Sigma,A,N=dim(Sigma)[1],H=dim(A)[3],perms,ncores=
 	
 	# from here on: parallelization?!
 	parallel <- (ncores!=1)
-	if ( (parallel) && (!require("parallel")) )
+	if ( (parallel) && (!requireNamespace("parallel")) )
 	{
 		print("Parallelization not possible because package 'parallel' is not installed. Using single core version instead.")
 		ncores <- 1
@@ -108,7 +108,7 @@ sot_avg_est_list <- function(Sigma,A,N=dim(Sigma[[1]])[1],H=dim(A[[1]])[3],perms
 	len <- length(Sigma)
 	res <- vector("list",len)
 	
-	if ( (ncores!=1) && (!require("parallel")) )
+	if ( (ncores!=1) && (!requireNamespace("parallel")) )
 	{
 		print("Parallelization not possible because package 'parallel' is not installed. Using single core version instead.")
 		ncores <- 1
