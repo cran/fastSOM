@@ -24,8 +24,8 @@ sot_single <- function(Sigma,A,N=dim(Sigma)[1],H=dim(A)[3],perm=1:N)
 {
 	res <- numeric(N*N)
 	dim(res) <- c(N,N)
-	scaling_factor <- 1/sqrt(.Call("fev",Sigma,A,N,H,PACKAGE="fastSOM"))
-	res[] <- 100*.sot_FAST(.Call("scaleSigma",Sigma,scaling_factor,N,PACKAGE="fastSOM"),.Call("scaleA",A,scaling_factor,N,H,PACKAGE="fastSOM"),N,H,perm)
+	scaling_factor <- 1/sqrt(.Call(C_fev,Sigma,A,N,H))
+	res[] <- 100*.sot_FAST(.Call(C_scaleSigma,Sigma,scaling_factor,N),.Call(C_scaleA,A,scaling_factor,N,H),N,H,perm)
 	dimnames(res) <- dimnames(Sigma)
 	res
 }

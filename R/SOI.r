@@ -23,7 +23,7 @@ soi_single <- function(Sigma,A,N=dim(Sigma)[1],H=dim(A)[3],perm=1:N)
 {
 	# first: normalize to unit forecast error variances 
 	scaling_factor <- 1/sqrt(forecast_error_variances(Sigma,A))
-	100*(1-.soi_FAST(.Call("scaleSigma",Sigma,scaling_factor,N,PACKAGE="fastSOM"),.Call("scaleA",A,scaling_factor,N,H,PACKAGE="fastSOM"),N,H,perm)/N)
+	100*(1-.soi_FAST(.Call(C_scaleSigma,Sigma,scaling_factor,N),.Call(C_scaleA,A,scaling_factor,N,H),N,H,perm)/N)
 }
 
 ################################################################################

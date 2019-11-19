@@ -6,7 +6,7 @@ importFrom(parallel,makeCluster)
 importFrom(parallel,splitIndices)
 importFrom(parallel,stopCluster)
 
-useDynLib(fastSOM)
+useDynLib(fastSOM, .registration = TRUE, .fixes = "C_")
 export(soi,sot,soi_from_sot,
 		soi_avg_est,soi_avg_exact,
 		sot_avg_est,sot_avg_exact)

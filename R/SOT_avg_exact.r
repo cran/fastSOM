@@ -26,8 +26,8 @@ sot_avg_exact_single <- function(Sigma,A,N=dim(Sigma)[1],H=dim(A)[3],helpers=hel
 	# or do that within the C function (quite unnecessary)
 	#if(N<5) return(VDT_DYKW(Sigma=Sigma,A=A,perm=perm)) else require(gtools)
 	
-	scaling_factor <- 1/sqrt(.Call("fev",Sigma,A,N,H,PACKAGE="fastSOM"))
-	res <- .Call("SOT_avg",.Call("scaleSigma",Sigma,scaling_factor,N,PACKAGE="fastSOM"),.Call("scaleA",A,scaling_factor,N,H,PACKAGE="fastSOM"),N,H,helpers$NcK,helpers$cumpos,helpers$gensets-1L,helpers$NminusOne,PACKAGE="fastSOM")
+	scaling_factor <- 1/sqrt(.Call(C_fev,Sigma,A,N,H))
+	res <- .Call(C_SOT_avg,.Call(C_scaleSigma,Sigma,scaling_factor,N),.Call(C_scaleA,A,scaling_factor,N,H),N,H,helpers$NcK,helpers$cumpos,helpers$gensets-1L,helpers$NminusOne)
 	for (i in 1:9)
 	{
 		dim(res[[i]]) <- c(N,N)

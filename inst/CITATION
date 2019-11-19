@@ -10,7 +10,7 @@ citEntry(entry = "Manual",
          author = c(person("Stefan","Kl\\\"o{\\ss}ner"),person("Sven","Wagner")),
          year = year,
          note = note,
-         url = "http://CRAN.R-project.org/package=fastSOM",
+         url = "https://cran.r-project.org/package=fastSOM",
 
          textVersion =
          paste("Stefan Kloessner","Sven Wagner",

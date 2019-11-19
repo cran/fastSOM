@@ -39,14 +39,14 @@ gen_perms <- function(N=19,nperms=1000)
 # calculates the spillover index without normalizing, i.e. assuming everything is already normalized
 .soi_FAST <- function (Sigma, A, N=dim(Sigma)[2], H=dim(A)[3], perm=1:N) 
 {
-	.Call("trALsquared",Sigma,A,N,H,perm-1L,PACKAGE="fastSOM")
+	.Call(C_trALsquared,Sigma,A,N,H,perm-1L)
 }
 
 ################################################################################
 # calculates the spillover index's average over many permutations without normalizing, i.e. assuming everything is already normalized
 .soi_FAST_perms <- function (Sigma, A, N=dim(Sigma)[2], H=dim(A)[3], perms, nperms, firstperm=1L) 
 {
-	tmp <- .Call("trALsquared_perms",Sigma,A,N,H,perms-1L,nperms,firstperm-1L,PACKAGE="fastSOM")
+	tmp <- .Call(C_trALsquared_perms,Sigma,A,N,H,perms-1L,nperms,firstperm-1L)
 	list(Average=100*(1-tmp[1]/N),
 			Min=100*(1-tmp[2]/N),
 			Max=100*(1-tmp[3]/N),
@@ -60,14 +60,14 @@ gen_perms <- function(N=19,nperms=1000)
 # calculate the spillover table without normalizing, i.e. assuming everything is already normalized
 .sot_FAST <- function(Sigma,A,N=dim(Sigma)[1],H=dim(A)[3],perm=1:N)
 {
-	.Call("ALsquared",Sigma,A,N,H,perm-1L,PACKAGE="fastSOM")
+	.Call(C_ALsquared,Sigma,A,N,H,perm-1L)
 }
 
 ################################################################################
 # calculate the spillover table's average over many permutations, without normalizing, i.e. assuming everything is already normalized
 .sot_FAST_perms <- function(Sigma,A,N=dim(Sigma)[1],H=dim(A)[3],perms,nperms)
 {
-	res <- .Call("ALsquared_perms",Sigma,A,N,H,perms-1L,nperms,PACKAGE="fastSOM")
+	res <- .Call(C_ALsquared_perms,Sigma,A,N,H,perms-1L,nperms)
 	for (i in 1:3) 
 	{
 		dim(res[[i]]) <- c(N,N)
@@ -87,9 +87,9 @@ normalize_fev <- function(Sigma,A,N=dim(Sigma)[1],H=dim(A)[3])
 	
 	scaling_factor <- 1/sqrt(forecast_error_variances(Sigma,A)) # in order to produce unit forecast error variances 
 	
-	Sigma[] <- .Call("scaleSigma",Sigma,scaling_factor,N,PACKAGE="fastSOM")
+	Sigma[] <- .Call(C_scaleSigma,Sigma,scaling_factor,N)
 	
-	A[] <- .Call("scaleA",A,scaling_factor,N,H,PACKAGE="fastSOM")
+	A[] <- .Call(C_scaleA,A,scaling_factor,N,H)
 	
 	list(Sigma=Sigma,A=A)
 }
@@ -115,7 +115,7 @@ all_N <- function(N,Nmin=6,newN=standardNewN)
 # calculate helpers for sot_avg_exact
 helpers_avg_exact <- function(N)
 {
-	NminusOne <- as.integer(.Call("Nminus1",N, PACKAGE="fastSOM"))
+	NminusOne <- as.integer(.Call(C_Nminus1,N))
 	NcK <- as.integer(choose(N-1,0:(N-1)))
 	cumpos <- cumsum(c(0L,NcK))
 	len <- cumpos[N+1]
@@ -230,9 +230,9 @@ diagFAST <- function (x = 1)
 soi_avg_exact_BruteForce <- function(Sigma,A,B=NULL,N=dim(Sigma)[1],H=dim(A)[3],useB=FALSE,perms=permutations(N))
 {
 	if (useB)
-		.Call("trALplusBLinv_squared_perms",Sigma,A,B,N,H,perms-1L,dim(perms)[2],PACKAGE="fastSOM")
+		.Call(C_trALplusBLinv_squared_perms,Sigma,A,B,N,H,perms-1L,dim(perms)[2])
 	else	
-		.Call("trALsquared_perms",Sigma,A,N,H,perms-1L,dim(perms)[2],0L,PACKAGE="fastSOM")
+		.Call(C_trALsquared_perms,Sigma,A,N,H,perms-1L,dim(perms)[2],0L)
 }
 
 
@@ -247,7 +247,7 @@ solve_generalized_problem <- function(Sigma,A,N=dim(Sigma)[2],H=dim(A)[3],B=0*A,
 	N1 <- newN(N)
 	N2 <- N-N1
 	tmp <- divide_et_impera(Sigma,A,N,N1,N2,H,B,useB,perms,combs,Nmin,newN,firstlevel,ncores)
-	.Call("paste_together",tmp$res1,tmp$res2,N,N1,N2,combs[[N]],dim(combs[[N]])[2],PACKAGE="fastSOM")
+	.Call(C_paste_together,tmp$res1,tmp$res2,N,N1,N2,combs[[N]],dim(combs[[N]])[2])
 }
 
 ################################################################################
@@ -285,16 +285,16 @@ divide_et_impera <- function(Sigma,A,N,N1,N2,H,B,useB=FALSE,perms,combs,Nmin=6,n
 			#tmpL <- chol(Sigma11)
 			#tmpM <- backsolve(tmpL,forwardsolve(t(tmpL),Sigma12))
 			
-			.Call("solve_sym",Sigma11,Sigma12,N1,N2,PACKAGE="fastSOM")
+			.Call(C_solve_sym,Sigma11,Sigma12,N1,N2)
 			tmpM <- Sigma12
 		
 			B1 <- B[M1,M1,]
 			B2 <- B[M2,M2,]
 			if (useB) 
-				.Call("array_stuff",B2,-B[M2,M1,],tmpM,N2,N1,H, PACKAGE="fastSOM") # this changes B2[,,h] into B2[,,h] - B[M1,M2,h] %*% tmpM
-			.Call("array_stuff",B1,A[M1,M2,],Sigma21,N1,N2,H, PACKAGE="fastSOM") # this changes B1[,,h] into B1[,,h] + A[M1,M2,h] %*% Sigma21
+				.Call(C_array_stuff,B2,-B[M2,M1,],tmpM,N2,N1,H) # this changes B2[,,h] into B2[,,h] - B[M1,M2,h] %*% tmpM
+			.Call(C_array_stuff,B1,A[M1,M2,],Sigma21,N1,N2,H) # this changes B1[,,h] into B1[,,h] + A[M1,M2,h] %*% Sigma21
 			Sigma22 <- Sigma[M2,M2] 
-			.Call("matrix_stuff",Sigma22,-Sigma21,tmpM,N2,N1,N2, PACKAGE="fastSOM") # this changes Sigma22 into Sigma22 - Sigma21 %*% tmpM
+			.Call(C_matrix_stuff,Sigma22,-Sigma21,tmpM,N2,N1,N2) # this changes Sigma22 into Sigma22 - Sigma21 %*% tmpM
 			res1[,i] <- solve_generalized_problem(Sigma11,A[M1,M1,],N1,H,B1,TRUE,perms,combs,Nmin,newN,FALSE)
 			res2[,i] <- solve_generalized_problem(Sigma22,A[M2,M2,],N2,H,B2,useB,perms,combs,Nmin,newN,FALSE)
 		}
@@ -319,16 +319,16 @@ divide_et_impera <- function(Sigma,A,N,N1,N2,H,B,useB=FALSE,perms,combs,Nmin=6,n
 				Sigma12 <- Sigma[M1,M2]
 				#tmpM <- solve(Sigma11,Sigma12) 
 				#.Call("La_dgesv", Sigma11, Sigma12, 1e-7, PACKAGE = "base") # Sigma11^{-1} %*% Sigma12
-				.Call("solve_sym",Sigma11,Sigma12,N1,N2,PACKAGE="fastSOM")
+				.Call(C_solve_sym,Sigma11,Sigma12,N1,N2)
 				tmpM <- Sigma12
 			
 				B1 <- B[M1,M1,]
 				B2 <- B[M2,M2,]
 				if (useB) 
-					.Call("array_stuff",B2,-B[M2,M1,],tmpM,N2,N1,H, PACKAGE="fastSOM") # this changes B2[,,h] into B2[,,h] - B[M1,M2,h] %*% tmpM
-				.Call("array_stuff",B1,A[M1,M2,],Sigma21,N1,N2,H, PACKAGE="fastSOM") # this changes B1[,,h] into B1[,,h] + A[M1,M2,h] %*% Sigma21
+					.Call(C_array_stuff,B2,-B[M2,M1,],tmpM,N2,N1,H) # this changes B2[,,h] into B2[,,h] - B[M1,M2,h] %*% tmpM
+				.Call(C_array_stuff,B1,A[M1,M2,],Sigma21,N1,N2,H) # this changes B1[,,h] into B1[,,h] + A[M1,M2,h] %*% Sigma21
 				Sigma22 <- Sigma[M2,M2] 
-				.Call("matrix_stuff",Sigma22,-Sigma21,tmpM,N2,N1,N2, PACKAGE="fastSOM") # this changes Sigma22 into Sigma22 - Sigma21 %*% tmpM
+				.Call(C_matrix_stuff,Sigma22,-Sigma21,tmpM,N2,N1,N2) # this changes Sigma22 into Sigma22 - Sigma21 %*% tmpM
 				res1[,i] <- solve_generalized_problem(Sigma11,A[M1,M1,],N1,H,B1,TRUE,perms,combs,Nmin,newN,FALSE)
 				res2[,i] <- solve_generalized_problem(Sigma22,A[M2,M2,],N2,H,B2,useB,perms,combs,Nmin,newN,FALSE)
 			}

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 
-void solve_sym(SEXP S, SEXP B, SEXP N, SEXP M)
+SEXP solve_sym(SEXP S, SEXP B, SEXP N, SEXP M)
 {
 	/* S: symmetric NxN-matrix */
 	/* B: rhs matrix of dimension N by M: will be replaced by S^(-1) B by using Cholesky decomposition */
@@ -62,6 +62,7 @@ void solve_sym(SEXP S, SEXP B, SEXP N, SEXP M)
 	
 	
 	free(tmpL);
+	return(R_NilValue);
 }
 
 /* calculates a part of the Cholesky decomposition of a matrix s */

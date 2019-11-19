@@ -6,7 +6,7 @@
 
 void chol_part_C(const double * const s, int n, int col, const int const * perm, double * res);
 
-void array_stuff(SEXP B, SEXP A, SEXP S, SEXP N1, SEXP N2, SEXP H)
+SEXP array_stuff(SEXP B, SEXP A, SEXP S, SEXP N1, SEXP N2, SEXP H)
 {
 	double * b = REAL(B);
 	const double * const a = REAL(A);	
@@ -18,9 +18,10 @@ void array_stuff(SEXP B, SEXP A, SEXP S, SEXP N1, SEXP N2, SEXP H)
 	int i,j,k,hh;
 	for (hh=0;hh<h;hh++) for (i=0;i<n1;i++) for (j=0;j<n1;j++) for (k=0;k<n2;k++)
 		b[i+j*n1+hh*n1*n1] += (a[i+k*n1+hh*n1*n2]*s[k+j*n2]);
+	return(R_NilValue);
 }
 
-void matrix_stuff(SEXP A, SEXP B, SEXP C, SEXP N1, SEXP N2, SEXP N3)
+SEXP matrix_stuff(SEXP A, SEXP B, SEXP C, SEXP N1, SEXP N2, SEXP N3)
 {
 // A: N1 x N3, B: N1 x N2, C: N2 x N3
 	double * a = REAL(A);
@@ -33,6 +34,7 @@ void matrix_stuff(SEXP A, SEXP B, SEXP C, SEXP N1, SEXP N2, SEXP N3)
 	int i,j,k;
 	for (i=0;i<n1;i++) for (j=0;j<n3;j++) for (k=0;k<n2;k++)
 		a[i+j*n1] += (b[i+k*n1]*c[k+j*n2]);
+	return(R_NilValue);
 }
 
 SEXP paste_together(SEXP Res1, SEXP Res2, SEXP N, SEXP N1, SEXP N2, SEXP Combs, SEXP Ncombs)
